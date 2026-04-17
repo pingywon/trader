@@ -1,0 +1,23 @@
+[project]
+name = "insider-tracker"
+version = "0.1.0"
+description = "Auto-mirror SEC Form 4 insider open-market purchases into an Alpaca account"
+requires-python = ">=3.11"
+dependencies = [
+    "alpaca-py>=0.30",
+    "httpx>=0.27",
+    "feedparser>=6.0",
+    "python-dotenv>=1.0",
+    "pyyaml>=6.0",
+    "tenacity>=8.2",
+]
+
+[project.scripts]
+insider-tracker = "insider_tracker.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["insider_tracker"]

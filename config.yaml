@@ -1,0 +1,42 @@
+# Insider tracker configuration. Values here are tunable without touching code.
+
+filters:
+  # Only act on open-market purchases (transaction code 'P'). Strongest signal.
+  open_market_only: true
+  # Skip pre-scheduled 10b5-1 trades (they were planned months in advance).
+  exclude_10b5_1: true
+  # Only trade when the insider is a Director, CEO, CFO, or another C-suite officer.
+  roles_allowed:
+    - director
+    - ceo
+    - cfo
+    - chief        # catches Chief * Officer titles (COO, CTO, etc.)
+    - president
+  # Ignore filings where the reported purchase dollar amount is below this.
+  min_insider_dollars: 0
+
+# Scale each trade by the insider's reported purchase size (shares * price).
+# For every row, if insider_dollars falls in [min, max), place a `notional` USD order.
+# Rows are evaluated top-down; first match wins.
+sizing:
+  tiers:
+    - { min: 0,        max: 50000,     notional: 100 }
+    - { min: 50000,    max: 250000,    notional: 300 }
+    - { min: 250000,   max: 1000000,   notional: 800 }
+    - { min: 1000000,  max: 5000000,   notional: 1500 }
+    - { min: 5000000,  max: 999999999, notional: 3000 }
+  # Hard safety cap: never place a single order larger than this fraction of account equity.
+  max_pct_of_equity: 0.05
+
+execution:
+  # Market DAY orders submitted outside RTH are queued to next open by Alpaca.
+  order_type: market
+  time_in_force: day
+  # Skip symbols whose asset record is not tradable or is fractional-disabled.
+  skip_non_fractionable: false
+
+polling:
+  # How many entries to pull from the EDGAR Form 4 feed each poll.
+  feed_count: 100
+  # Skip filings older than this many hours (avoids re-processing backfill on first run).
+  max_age_hours: 48
