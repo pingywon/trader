@@ -1,0 +1,68 @@
+ To activate:
+ 
+ 
+ (insider-tracker) PS C:\Users\username\trading
+ 
+ 
+
+  1. Paste paper keys into C:\Users\username\trading\.env (from https://app.alpaca.markets/paper/dashboard/overview)
+  2. Test: uv run insider-tracker run --dry-run — logs what it would trade, touches nothing
+  3. Go live: uv run insider-tracker run — submits real paper orders
+  4. Audit: uv run insider-tracker status — recent decisions & trades
+
+  To schedule (Windows Task Scheduler, every 15 min during market hours):
+  Program: C:\Users\username\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe\uv.exe
+  Args:    run insider-tracker run
+  Start in: C:\Users\username\trading
+
+  What gets traded: Form 4 open-market purchases (code P) by CEOs/CFOs/C-suite/Directors, excluding 10b5-1 plan trades, sized by tier: $100 / $300 / $800 / $1,500 / $3,000 based on insider $ size, capped at 5% of       
+  account equity.
+  
+  ● What the script does                                                                                                                                                                      
+                                                                                                                                                                                            
+  Every time you run uv run insider-tracker run, it does this cycle:
+                                                                                                                                                                                              1. Pulls the SEC Form 4 feed — the realtime list of insider transactions (CEOs, CFOs, directors, 10% owners buying or selling stock in their own company). Form 4 has to be filed within 2   business days of the trade, so this is near-live data.                                                                                                                                   
+  2. Parses each filing and extracts: ticker, who traded, their role, transaction code (buy/sell/grant/etc.), shares, price, and whether it was part of a pre-scheduled 10b5-1 plan.        
+  3. Filters down to high-conviction signals — only keeps filings where:
+    - An insider bought on the open market with their own money (code P) — the strongest historical predictor of future stock gains
+    - The insider is a Director, CEO, CFO, President, or other Chief officer — not lower-level employees
+    - The trade was not pre-scheduled via a 10b5-1 plan (those were planned months ago and carry no information)
+  4. Sizes the trade based on how much the insider spent — bigger conviction from them = bigger position from you. Tiered $100 / $300 / $800 / $1,500 / $3,000, capped at 5% of your account
+   equity.
+  5. Submits a market buy to Alpaca paper account as a notional (fractional-dollar) order. If the market is closed, Alpaca queues it for next open.
+  6. Logs everything to SQLite (data/state.db) so the next run skips filings it already processed, and you have an audit trail via uv run insider-tracker status.
+
+  Scheduling on Windows
+
+  Form 4s can drop any time on a business day but cluster around 4–6pm ET (after close). Running every 15 minutes during market hours is plenty.
+
+  Task Scheduler setup:
+
+  1. Open Task Scheduler (Win+R → taskschd.msc)
+  2. Create Task (not "Create Basic Task" — you need the full dialog)
+  3. General tab:
+    - Name: Insider Tracker
+    - ☑ Run whether user is logged on or not
+    - ☑ Run with highest privileges (optional but avoids perms issues)
+  4. Triggers tab → New:
+    - Begin: On a schedule, Daily, start ~9:30 AM
+    - ☑ Repeat task every 15 minutes for a duration of 8 hours
+    - ☑ Enabled
+  5. Actions tab → New:
+    - Action: Start a program
+    - Program/script: C:\Users\username\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe\uv.exe
+    - Add arguments: run insider-tracker run
+    - Start in: C:\Users\username\trading
+  6. Conditions tab: uncheck "Start only if on AC power" if you're on a laptop
+  7. Settings tab: ☑ Run task as soon as possible after a scheduled start is missed
+
+  Verify it's working after the first scheduled run:
+  uv run insider-tracker status
+
+  Logs: the script prints to stdout. Task Scheduler doesn't capture stdout by default. If you want logs, change the Action's arguments to route output to a file:
+
+  Program:   C:\Windows\System32\cmd.exe
+  Arguments: /c "uv run insider-tracker run >> C:\Users\username\trading\data\tracker.log 2>&1"
+  Start in:  C:\Users\username\trading
+
+  That's it — filings land, filters run, orders get placed, state persists. Check status every few days to see what's accumulating.
