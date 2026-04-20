@@ -114,6 +114,43 @@ insider-tracker [--config PATH] [--db PATH] [--verbose] <command>
 
 ---
 
+## One-click status check (Windows)
+
+A taskbar-pinnable shortcut is included under `scripts/` so you can see the last 25 filings + trades without touching a terminal.
+
+### Files
+
+| Path | What it is |
+| --- | --- |
+| `scripts/Insider Tracker Status.lnk` | Windows shortcut. Target: `cmd.exe /k uv run insider-tracker status`, working dir: the project root. Double-clicking opens a CMD window, prints the last run's audit, and stays open until you close it. |
+| `scripts/create-status-shortcut.ps1` | PowerShell script that regenerates the `.lnk` on your Desktop with paths resolved for the current user and current clone location. Use this if you cloned the repo to a different folder than `C:\Users\username\trading`, or on a new machine. |
+
+### Setup
+
+**If your clone lives at `C:\Users\username\trading`** (the baked-in path), just copy the shortcut to your Desktop:
+
+```powershell
+Copy-Item "scripts\Insider Tracker Status.lnk" "$env:USERPROFILE\Desktop\"
+```
+
+**Otherwise** (different user, different folder, different machine) — regenerate it so the paths match:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\create-status-shortcut.ps1
+```
+
+This writes a fresh shortcut to your Desktop with the correct `WorkingDirectory` for wherever the repo is cloned.
+
+### Pin it
+
+1. Right-click the Desktop shortcut
+2. **Show more options** (Windows 11 — skip on Windows 10)
+3. **Pin to taskbar**
+
+One click from then on → CMD window with the latest audit.
+
+---
+
 ## Configuration (`config.yaml`)
 
 Tunable without touching code.
@@ -230,6 +267,9 @@ trading/
 ├── .env.example             # template
 ├── data/
 │   └── state.db             # SQLite audit + dedupe store (gitignored)
+├── scripts/
+│   ├── Insider Tracker Status.lnk      # Desktop/taskbar shortcut for `status`
+│   └── create-status-shortcut.ps1      # regenerates the .lnk for any clone path
 └── insider_tracker/
     ├── cli.py               # argparse entry point: run / status
     ├── edgar.py             # SEC EDGAR Form 4 feed + XML parsing
