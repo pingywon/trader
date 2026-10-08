@@ -21,7 +21,7 @@
   color-scheme:light;
   --paper:#eef1f5; --sheet:#ffffff; --ink:#0f1a33; --ink-2:#3f4a66; --ink-3:#66718b;
   --rule:#c3ccda; --rule-2:#dde3ec; --accent:#4a3aa7; --code-bg:#e3e8f0;
-  --high:#d03b3b; --good:#0ca30c;
+  --high:#d03b3b; --med:#ec835a; --good:#0ca30c;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -47,25 +47,49 @@ img{max-width:100%;height:auto;display:block}
 
 h1{font-weight:800;font-stretch:70%;font-size:clamp(3.2rem,11vw,7rem);line-height:.9;letter-spacing:-.015em;margin:56px 0 14px}
 .tag{font-weight:700;font-stretch:84%;font-size:clamp(1.4rem,3.4vw,2rem);line-height:1.15;margin:0 0 14px;max-width:22ch}
-.lede{font-size:1.1rem;color:var(--ink-2);max-width:52ch;margin:0}
+.lede{font-size:1.1rem;color:var(--ink-2);max-width:60ch;margin:0 0 10px}
 h2{font-weight:800;font-stretch:76%;font-size:clamp(1.5rem,3vw,1.9rem);line-height:1.05;margin:0 0 14px}
 p{margin:0 0 12px}
 section{padding:34px 0;border-top:1.5px solid var(--ink)}
 .first{border-top:0;padding-top:30px}
 
-.flow{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:s}
-@media (min-width:760px){.flow{grid-template-columns:repeat(3,1fr);gap:0}}
-.flow li{counter-increment:s;background:var(--sheet);border:1.5px solid var(--ink);padding:16px 18px 18px;position:relative;color:var(--ink-2);line-height:1.4}
-@media (min-width:760px){.flow li + li{border-left:0}}
-.flow li::before{content:counter(s);display:block;font-weight:800;font-stretch:70%;font-size:2.4rem;line-height:1;color:var(--accent)}
-.flow b{display:block;color:var(--ink);font-size:1.25rem;font-stretch:84%;margin:2px 0 4px}
-.flow small{display:block;margin-top:8px;font-size:.82rem;color:var(--ink-3)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;background:var(--sheet);border:1.5px solid var(--ink)}
+.steps > li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:0 12px;padding:15px 16px 16px;border-bottom:1px solid var(--rule);color:var(--ink-2);line-height:1.42}
+.steps > li:last-child{border-bottom:0}
+.steps > li::before{content:counter(s);font-weight:800;font-stretch:70%;font-size:2.4rem;line-height:.95;color:var(--accent)}
+.steps h3{font-weight:700;font-stretch:84%;font-size:1.25rem;line-height:1.2;color:var(--ink);margin:2px 0 4px}
+.steps p{margin:0;max-width:62ch}
+@media (min-width:760px){.steps > li{grid-template-columns:52px minmax(0,1fr);padding:18px 22px 20px}.steps > li::before{font-size:3rem}}
+
+.rules{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+@media (min-width:760px){.rules{grid-template-columns:repeat(3,1fr)}}
+.rules li{background:var(--paper);border-left:4px solid var(--accent);padding:9px 12px 10px;font-size:.94rem;line-height:1.38}
+.rules b{display:block;color:var(--ink);font-stretch:88%}
+
+.size{display:grid;gap:18px}
+@media (min-width:760px){.size{grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:32px;align-items:start}}
+.tiers{width:100%;border-collapse:collapse;background:var(--sheet);border:1.5px solid var(--ink)}
+.tiers th,.tiers td{text-align:left;padding:9px 16px;border-bottom:1px solid var(--rule-2)}
+.tiers tr:last-child td{border-bottom:0}
+.tiers th{font-size:.82rem;font-weight:600;color:var(--ink-3);border-bottom-color:var(--rule)}
+.tiers td{color:var(--ink-2)}
+.tiers th:last-child,.tiers td:last-child{text-align:right}
+.tiers td:last-child{color:var(--ink);font-weight:800;font-stretch:84%;font-variant-numeric:tabular-nums}
+.eg{margin:0;border-left:4px solid var(--accent);padding:2px 0 2px 16px;color:var(--ink-2);max-width:44ch}
+.eg b{color:var(--ink)}
+
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+@media (min-width:760px){.notes{grid-template-columns:repeat(3,1fr);gap:0}}
+.notes li{background:var(--sheet);border:1.5px solid var(--ink);padding:14px 18px 16px;color:var(--ink-2);line-height:1.4}
+@media (min-width:760px){.notes li + li{border-left:0}}
+.notes b{display:block;color:var(--ink);font-size:1.25rem;font-stretch:84%;margin:0 0 4px}
 
 .calls{list-style:none;margin:0 0 20px;padding:0;background:var(--sheet);border:1px solid var(--rule)}
 .calls li{display:grid;grid-template-columns:1fr;gap:2px 20px;padding:11px 16px;border-bottom:1px solid var(--rule-2)}
 .calls li:last-child{border-bottom:0}
 @media (min-width:640px){.calls li{grid-template-columns:1fr auto;align-items:baseline}}
 .calls code{font-size:.82rem;color:var(--ink-2)}
+.calls.last{margin-bottom:0}
 .shot{margin:0}
 .shot > a{display:block;border-radius:8px;overflow:hidden;border:1px solid var(--rule)}
 .cap{font-size:.9rem;color:var(--ink-2);margin:8px 0 0;max-width:62ch}
@@ -84,15 +108,76 @@ footer b{color:var(--ink)}
 <main>
   <h1>Insider Tracker</h1>
   <p class="tag">A bot that copies what company insiders buy.</p>
-  <p class="lede">When a CEO or director buys their own company's stock, they have to tell the SEC within two business days. This tool reads those reports and places a small matching buy through Alpaca.</p>
+  <p class="lede">When a CEO or director buys their own company's stock with their own money, they have to tell the SEC within two business days. This tool reads those reports, keeps the ones that show real confidence, and places a small matching buy through Alpaca.</p>
 
   <section class="first">
-    <ol class="flow">
-      <li><b>Watch</b>Reads new insider reports from the SEC.<small>SEC EDGAR, Form 4</small></li>
-      <li><b>Decide</b>Keeps real purchases by top executives. Picks an order size.<small>$100 to $3,000, never over 5% of the account</small></li>
-      <li><b>Buy</b>Places the order through Alpaca and logs it.<small>Paper trading, unless you ask twice</small></li>
+    <h2>What it does on every run</h2>
+    <ol class="steps">
+      <li><div>
+        <h3>Gets the newest insider reports</h3>
+        <p>It asks the SEC for the latest Form 4 filings. That is the form an insider files when they trade their own company's stock.</p>
+      </div></li>
+      <li><div>
+        <h3>Reads each one</h3>
+        <p>Which stock, who traded, their job, buy or sell, how many shares and at what price.</p>
+      </div></li>
+      <li><div>
+        <h3>Keeps only the strong signals</h3>
+        <p>All three must be true:</p>
+        <ul class="rules">
+          <li><b>Bought on the open market</b>Their own money. Not a grant, not an option.</li>
+          <li><b>A top insider</b>A director, CEO, CFO, president or other chief officer.</li>
+          <li><b>Not pre-scheduled</b>A trade set up months ago under a 10b5-1 plan says nothing about today.</li>
+        </ul>
+      </div></li>
+      <li><div>
+        <h3>Picks a size</h3>
+        <p>The more the insider spent, the more it buys. $100 to $3,000, never over 5% of the account per order.</p>
+      </div></li>
+      <li><div>
+        <h3>Buys</h3>
+        <p>It sends Alpaca a market order for that dollar amount. If the market is closed, the order waits for the next open.</p>
+      </div></li>
+      <li><div>
+        <h3>Writes it down</h3>
+        <p>Every filing and order is saved with the reason, so you can see what it bought, what it skipped and why. The next run skips what it has already seen.</p>
+      </div></li>
     </ol>
-    <p class="cap">Set up for paper trading: practice money, real market prices.</p>
+  </section>
+
+  <section>
+    <h2>How much it buys</h2>
+    <div class="size">
+      <table class="tiers">
+        <thead><tr><th scope="col">The insider spent</th><th scope="col">It buys</th></tr></thead>
+        <tbody>
+          <tr><td>Under $50,000</td><td>$100</td></tr>
+          <tr><td>$50,000 to $250,000</td><td>$300</td></tr>
+          <tr><td>$250,000 to $1 million</td><td>$800</td></tr>
+          <tr><td>$1 million to $5 million</td><td>$1,500</td></tr>
+          <tr><td>$5 million and up</td><td>$3,000</td></tr>
+        </tbody>
+      </table>
+      <p class="eg"><b>Example.</b> A CEO buys $420,000 of their own company's stock. That is the third row, so the order is $800. On a $10,000 account, the 5% cap trims it to $500.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Good to know</h2>
+    <ul class="notes">
+      <li><b>Paper first</b>Practice money, real prices. Real money has to be asked for twice.</li>
+      <li><b>Buys only</b>It never sells. Closing a position is up to you.</li>
+      <li><b>Mostly says no</b>Most reports are sales or grants. Skipping them is the filter working.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Running it</h2>
+    <ul class="calls last">
+      <li>See what it would buy. Sends nothing.<code>insider-tracker run --dry-run</code></li>
+      <li>Place the orders.<code>insider-tracker run</code></li>
+      <li>Show what it did and why.<code>insider-tracker status</code></li>
+    </ul>
   </section>
 
   <section>
@@ -110,10 +195,11 @@ footer b{color:var(--ink)}
 
   <section>
     <h2>Audited</h2>
-    <p>Every line was read and run. 18 findings. Three matter most:</p>
+    <p>That is the design. An audit read every line and ran it. 18 findings. These matter most:</p>
     <ul class="three">
       <li>{{ICON_HIGH}}<span>It misses most filings. Its SEC request pulls in the wrong forms.</span></li>
       <li>{{ICON_HIGH}}<span>Nothing limits how much it buys in total.</span></li>
+      <li>{{ICON_MED}}<span>The pre-scheduled check reads the wrong field, so those trades get through.</span></li>
       <li>{{ICON_GOOD}}<span>Fixed: a typo could switch it to real money.</span></li>
     </ul>
     <p class="more"><a href="audit.html">Read the full audit</a></p>
