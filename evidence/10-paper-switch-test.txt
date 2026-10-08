@@ -1,0 +1,30 @@
+$ python test_paper.py                     # the paper-first switch, after the fix
+ALPACA_PAPER='true'     --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='true'     --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='1'        --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='1'        --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='yes'      --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='yes'      --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='on'       --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='on'       --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='y'        --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='y'        --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='paper'    --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='paper'    --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='ture'     --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='ture'     --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER=''         --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER=''         --live=True  -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER=' false '  --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER=' false '  --live=True  -> LIVE   BaseURL.TRADING_LIVE  ok
+ALPACA_PAPER='false'    --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='false'    --live=True  -> LIVE   BaseURL.TRADING_LIVE  ok
+ALPACA_PAPER='0'        --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='0'        --live=True  -> LIVE   BaseURL.TRADING_LIVE  ok
+ALPACA_PAPER='no'       --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='no'       --live=True  -> LIVE   BaseURL.TRADING_LIVE  ok
+ALPACA_PAPER='FALSE'    --live=False -> paper  BaseURL.TRADING_PAPER  ok
+ALPACA_PAPER='FALSE'    --live=True  -> LIVE   BaseURL.TRADING_LIVE  ok
+ALPACA_PAPER unset      --live=False -> paper
+cli passes the flag through: True
+RESULT: all correct

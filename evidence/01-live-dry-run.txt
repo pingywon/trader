@@ -1,0 +1,25 @@
+$ uv run insider-tracker run --dry-run    # unmodified tool, live SEC feed, 2026-10-08 14:15 EDT
+14:15:47 INFO Fetching Form 4 feed (count=100, max_age=2 days, 0:00:00)
+14:15:47 INFO Feed returned 30 filings
+14:15:47 INFO [DRY RUN] simulated equity: $100000.00
+14:15:55 INFO Done. traded=0 skipped=30 errored=0
+(exit code 0, 8 s)
+
+$ python feed_variants.py                  # what each SEC query returned, same minute
+tool's query        type=4  owner=include count=100
+   entries=100  distinct filings=30  Form 4 or 4/A filings=1
+   types={'424B2': 34, '40-17G': 34, '40-APP/A': 23, '485BXT': 7, '4': 2}
+   newest 18:14:47 UTC  oldest 17:50:13 UTC  covers 0:24:34
+owner=only          type=4  owner=only    count=100
+   entries=100  distinct filings=50  Form 4 or 4/A filings=50
+   types={'4': 94, '4/A': 6}
+   newest 18:14:47 UTC  oldest 10:30:04 UTC  covers 7:44:43
+tool's query, page 2 (start=100)
+   entries=100  distinct filings=54  Form 4 or 4/A filings=7
+   types={'424B2': 66, '4': 14, '485BXT': 13, '424B3': 2, '485APOS': 2, '485BPOS': 2, '497J': 1}
+   newest 17:50:13 UTC  oldest 17:06:56 UTC  covers 0:43:17
+tool's query, page 3 (start=200)
+   entries=100  distinct filings=53  Form 4 or 4/A filings=10
+   types={'424B2': 67, '4': 20, '485BXT': 6, '40-17G': 6, '424B3': 1}
+   newest 17:05:57 UTC  oldest 16:14:23 UTC  covers 0:51:34
+SUMMARY: newest 300 entries of the tool's query hold 18 Form 4 filings; the 100 the tool reads hold 1 and span 0:24:34; the same 100 slots with owner=only hold 50 and span 7:44:43

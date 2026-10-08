@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insider Tracker</title>
+<meta name="description" content="A bot that copies what company insiders buy. It reads insider reports from the SEC and places a small matching buy through Alpaca.">
+<meta property="og:title" content="Insider Tracker">
+<meta property="og:description" content="A bot that copies what company insiders buy. Reads SEC insider reports, places a small matching buy through Alpaca.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://pingywon.github.io/trader/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#eef1f5; --sheet:#ffffff; --ink:#0f1a33; --ink-2:#3f4a66; --ink-3:#66718b;
+  --rule:#c3ccda; --rule-2:#dde3ec; --accent:#4a3aa7; --code-bg:#e3e8f0;
+  --high:#d03b3b; --good:#0ca30c;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#0b1220; --sheet:#131c30; --ink:#edf0f7; --ink-2:#bcc5d8; --ink-3:#8d98b0;
+    --rule:#2f3c5a; --rule-2:#1f2a43; --accent:#9085e9; --code-bg:#1b2641;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0b1220; --sheet:#131c30; --ink:#edf0f7; --ink-2:#bcc5d8; --ink-3:#8d98b0;
+  --rule:#2f3c5a; --rule-2:#1f2a43; --accent:#9085e9; --code-bg:#1b2641;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 18px/1.5 Archivo,system-ui,sans-serif;font-stretch:100%}
+a{color:var(--accent);text-underline-offset:.18em}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+code,.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-ligatures:none}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+@media (min-width:720px){.wrap{padding:0 32px}}
+
+h1{font-weight:800;font-stretch:70%;font-size:clamp(3.2rem,11vw,7rem);line-height:.9;letter-spacing:-.015em;margin:56px 0 14px}
+.tag{font-weight:700;font-stretch:84%;font-size:clamp(1.4rem,3.4vw,2rem);line-height:1.15;margin:0 0 14px;max-width:22ch}
+.lede{font-size:1.1rem;color:var(--ink-2);max-width:52ch;margin:0}
+h2{font-weight:800;font-stretch:76%;font-size:clamp(1.5rem,3vw,1.9rem);line-height:1.05;margin:0 0 14px}
+p{margin:0 0 12px}
+section{padding:34px 0;border-top:1.5px solid var(--ink)}
+.first{border-top:0;padding-top:30px}
+
+.flow{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:s}
+@media (min-width:760px){.flow{grid-template-columns:repeat(3,1fr);gap:0}}
+.flow li{counter-increment:s;background:var(--sheet);border:1.5px solid var(--ink);padding:16px 18px 18px;position:relative;color:var(--ink-2);line-height:1.4}
+@media (min-width:760px){.flow li + li{border-left:0}}
+.flow li::before{content:counter(s);display:block;font-weight:800;font-stretch:70%;font-size:2.4rem;line-height:1;color:var(--accent)}
+.flow b{display:block;color:var(--ink);font-size:1.25rem;font-stretch:84%;margin:2px 0 4px}
+.flow small{display:block;margin-top:8px;font-size:.82rem;color:var(--ink-3)}
+
+.calls{list-style:none;margin:0 0 20px;padding:0;background:var(--sheet);border:1px solid var(--rule)}
+.calls li{display:grid;grid-template-columns:1fr;gap:2px 20px;padding:11px 16px;border-bottom:1px solid var(--rule-2)}
+.calls li:last-child{border-bottom:0}
+@media (min-width:640px){.calls li{grid-template-columns:1fr auto;align-items:baseline}}
+.calls code{font-size:.82rem;color:var(--ink-2)}
+.shot{margin:0}
+.shot > a{display:block;border-radius:8px;overflow:hidden;border:1px solid var(--rule)}
+.cap{font-size:.9rem;color:var(--ink-2);margin:8px 0 0;max-width:62ch}
+
+.three{list-style:none;margin:0 0 16px;padding:0;max-width:56ch}
+.three li{display:grid;grid-template-columns:18px 1fr;gap:10px;padding:5px 0}
+.three svg{width:13px;height:13px;margin-top:7px}
+.more{font-weight:700;font-stretch:88%}
+
+footer{border-top:1.5px solid var(--ink);padding:18px 0 48px;font-size:.9rem;color:var(--ink-2)}
+footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<main>
+  <h1>Insider Tracker</h1>
+  <p class="tag">A bot that copies what company insiders buy.</p>
+  <p class="lede">When a CEO or director buys their own company's stock, they have to tell the SEC within two business days. This tool reads those reports and places a small matching buy through Alpaca.</p>
+
+  <section class="first">
+    <ol class="flow">
+      <li><b>Watch</b>Reads new insider reports from the SEC.<small>SEC EDGAR, Form 4</small></li>
+      <li><b>Decide</b>Keeps real purchases by top executives. Picks an order size.<small>$100 to $3,000, never over 5% of the account</small></li>
+      <li><b>Buy</b>Places the order through Alpaca and logs it.<small>Paper trading, unless you ask twice</small></li>
+    </ol>
+    <p class="cap">Set up for paper trading: practice money, real market prices.</p>
+  </section>
+
+  <section>
+    <h2>How it talks to Alpaca</h2>
+    <ul class="calls">
+      <li>How much is in the account?<code>GET /v2/account</code></li>
+      <li>Can this stock be traded?<code>GET /v2/assets/{symbol}</code></li>
+      <li>Buy this many dollars of it.<code>POST /v2/orders</code></li>
+    </ul>
+    <figure class="shot">
+      <a href="img/shot-02-replay-run.png"><img src="img/shot-02-replay-run.png" width="2080" height="1350" alt="Terminal output of a practice run: 193 filings read, seven buy orders submitted for CET, FUL, BORR, UXIN, TSM, COE and TSM, two rejected. A second run over the same filings places no orders."></a>
+      <figcaption class="cap">A practice run on 8 October 2026: 193 real insider reports in, 9 buy orders out. Paper money, with a local stand-in for Alpaca.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Audited</h2>
+    <p>Every line was read and run. 18 findings. Three matter most:</p>
+    <ul class="three">
+      <li><svg viewBox="0 0 16 16" fill="var(--high)" role="img" aria-label="High severity"><path d="M8 1.5 15 14.5H1z"/></svg><span>It misses most filings. Its SEC request pulls in the wrong forms.</span></li>
+      <li><svg viewBox="0 0 16 16" fill="var(--high)" role="img" aria-label="High severity"><path d="M8 1.5 15 14.5H1z"/></svg><span>Nothing limits how much it buys in total.</span></li>
+      <li><svg viewBox="0 0 16 16" fill="var(--good)" role="img" aria-label="Good"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm3.6 5.3-4.2 4.6-2.9-2.6 1-1.1 1.8 1.6 3.2-3.5z"/></svg><span>Fixed: a typo could switch it to real money.</span></li>
+    </ul>
+    <p class="more"><a href="audit.html">Read the full audit</a></p>
+  </section>
+
+  <section>
+    <h2>Built with</h2>
+    <p>Python, Alpaca's <span class="mono">alpaca-py</span> SDK, SEC EDGAR and SQLite. 815 lines. <a href="https://github.com/pingywon/trader">Code on GitHub</a></p>
+  </section>
+</main>
+
+<footer>
+  <b>Insider Tracker, site version 3.1.0.</b> Not investment advice.
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Every request the alpaca-py SDK sent during the replay, in order.
+# Run 1
+GET  /v2/account        -> 200
+GET  /v2/assets/GOAI    -> 200
+POST /v2/orders         -> 403   {"symbol": "GOAI", "notional": 100.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/GOAI    -> 200
+POST /v2/orders         -> 403   {"symbol": "GOAI", "notional": 100.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/CET     -> 200
+POST /v2/orders         -> 200   {"symbol": "CET", "notional": 100.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/FUL     -> 200
+POST /v2/orders         -> 200   {"symbol": "FUL", "notional": 800.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/BORR    -> 200
+POST /v2/orders         -> 200   {"symbol": "BORR", "notional": 1250.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/UXIN    -> 200
+POST /v2/orders         -> 200   {"symbol": "UXIN", "notional": 100.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/TSM     -> 200
+POST /v2/orders         -> 200   {"symbol": "TSM", "notional": 100.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/COE     -> 200
+POST /v2/orders         -> 200   {"symbol": "COE", "notional": 1250.0, "side": "buy", "type": "market", "time_in_force": "day"}
+GET  /v2/assets/TSM     -> 200
+POST /v2/orders         -> 200   {"symbol": "TSM", "notional": 100.0, "side": "buy", "type": "market", "time_in_force": "day"}
+# Run 2
+GET  /v2/account        -> 200
+
+# Headers on every request
+{
+ "APCA-API-KEY-ID": "PKREPLAYDUMMYKEY0000",
+ "APCA-API-SECRET-KEY": "(sent, redacted)",
+ "User-Agent": "APCA-PY/0.43.2",
+ "Content-Type": null
+}

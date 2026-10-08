@@ -1,0 +1,13 @@
+$ pip-audit -r locked-requirements.txt      # versions pinned by uv.lock, checked 2026-10-08
+package    pinned   advisory          CVE              fixed in
+anyio      4.13.0   PYSEC-2026-4025   CVE-2026-63374   4.14.2
+anyio      4.13.0   PYSEC-2026-4024   CVE-2026-64847   4.14.2
+idna       3.11     PYSEC-2026-215    CVE-2026-45409   3.15
+msgpack    1.1.2    PYSEC-2026-3625   CVE-2026-57585   1.2.1
+urllib3    2.6.3    PYSEC-2026-141    CVE-2026-44431   2.7.0
+urllib3    2.6.3    PYSEC-2026-142    CVE-2026-44432   2.7.0
+urllib3    2.6.3    PYSEC-2026-4177   CVE-2026-97689   2.8.0
+urllib3    2.6.3    PYSEC-2026-4176   CVE-2026-97688   2.8.0
+urllib3    2.6.3    PYSEC-2026-4175   CVE-2026-97687   2.8.0
+
+9 advisories in 4 of 27 pinned packages

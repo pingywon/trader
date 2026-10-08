@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insider Tracker audit</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Code audit of Insider Tracker, a Python tool that copies SEC Form 4 insider purchases into an Alpaca account. 18 findings, each reproduced.">
+<meta property="og:title" content="Insider Tracker code audit">
+<meta property="og:description" content="The tracker asks the SEC for 100 insider filings. On audit day it got two. 18 findings, each reproduced.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://pingywon.github.io/trader/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#eef1f5; --sheet:#ffffff; --ink:#0f1a33; --ink-2:#3f4a66; --ink-3:#66718b;
+  --rule:#c3ccda; --rule-2:#dde3ec; --accent:#4a3aa7; --accent-soft:#e9e6f8;
+  --mark-mute:#b3bac7; --code-bg:#e3e8f0;
+  --high:#d03b3b; --med:#ec835a; --low:#fab219; --good:#0ca30c;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#0b1220; --sheet:#131c30; --ink:#edf0f7; --ink-2:#bcc5d8; --ink-3:#8d98b0;
+    --rule:#2f3c5a; --rule-2:#1f2a43; --accent:#9085e9; --accent-soft:#221f45;
+    --mark-mute:#4f5a75; --code-bg:#1b2641;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0b1220; --sheet:#131c30; --ink:#edf0f7; --ink-2:#bcc5d8; --ink-3:#8d98b0;
+  --rule:#2f3c5a; --rule-2:#1f2a43; --accent:#9085e9; --accent-soft:#221f45;
+  --mark-mute:#4f5a75; --code-bg:#1b2641;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 Archivo,system-ui,sans-serif;font-stretch:100%}
+a{color:var(--accent);text-underline-offset:.18em}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+code,pre,.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-ligatures:none}
+code{font-size:.84em;background:var(--code-bg);padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+@media (min-width:560px){code{white-space:nowrap}}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+@media (min-width:720px){.wrap{padding:0 32px}}
+
+.fields{display:grid;grid-template-columns:repeat(2,1fr);margin:24px 0 0;border:1.5px solid var(--ink);background:var(--sheet)}
+.fields div{padding:8px 12px 10px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.fields dt{font-size:12px;color:var(--ink-3);line-height:1.3}
+.fields dd{margin:2px 0 0;font-weight:600;font-size:15px;overflow-wrap:anywhere}
+@media (min-width:860px){.fields{grid-template-columns:1.5fr 1fr 1.4fr 1fr}.fields div{border-bottom:0}.fields div:last-child{border-right:0}}
+
+h1{font-weight:800;font-stretch:72%;font-size:clamp(2.4rem,6.6vw,4.8rem);line-height:.96;letter-spacing:-.012em;margin:40px 0 16px;max-width:19ch;text-wrap:balance}
+.lede{font-size:1.2rem;line-height:1.45;max-width:58ch;margin:0;color:var(--ink-2);text-wrap:pretty}
+h2{font-weight:800;font-stretch:76%;font-size:clamp(1.6rem,3.2vw,2.1rem);line-height:1.05;margin:0 0 12px}
+p{margin:0 0 12px}
+section{padding:30px 0 34px;border-top:1.5px solid var(--ink);margin-top:0}
+ul.short,ol.short{margin:0;padding-left:1.2em;max-width:62ch}
+ul.short li,ol.short li{padding:3px 0}
+
+.feed{margin:28px 0 0;background:var(--sheet);border:1.5px solid var(--ink);display:grid;grid-template-columns:1fr}
+.panel{padding:18px;min-width:0}
+.panel + .panel{border-top:1.5px solid var(--ink)}
+@media (min-width:860px){.feed{grid-template-columns:1fr 1fr}.panel{padding:22px 24px}.panel + .panel{border-top:0;border-left:1.5px solid var(--ink)}}
+.panel h3{font-weight:700;font-stretch:88%;font-size:1.05rem;margin:0 0 4px}
+.query{font-size:.8rem;color:var(--ink-2);margin:0 0 14px;overflow-wrap:anywhere}
+.query mark{background:var(--accent-soft);color:var(--ink);padding:.12em 0;border-radius:3px;font-weight:600}
+.waffle{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;max-width:460px}
+.waffle span{aspect-ratio:1;border-radius:2px;background:var(--mark-mute)}
+.waffle span.hit{background:var(--accent)}
+.big{margin:14px 0 8px;color:var(--ink-2);line-height:1.3}
+.big b{font-weight:800;font-stretch:80%;font-size:1.45rem;color:var(--ink)}
+.keys{list-style:none;margin:0;padding:0;font-size:.88rem;color:var(--ink-2)}
+.keys li{display:grid;grid-template-columns:12px 2em 1fr;gap:8px;align-items:center;padding:1px 0}
+.keys i{width:11px;height:11px;border-radius:2px;background:var(--mark-mute)}
+.keys i.hit{background:var(--accent)}
+.keys b{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.cap{font-size:.88rem;color:var(--ink-2);margin:8px 0 0}
+
+.verdict{list-style:none;margin:26px 0 34px;padding:0;display:grid;gap:10px 28px}
+@media (min-width:860px){.verdict{grid-template-columns:repeat(3,1fr)}}
+.verdict li{line-height:1.4}
+.tag{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-stretch:88%;white-space:nowrap}
+.tag svg{width:13px;height:13px;flex:none}
+.verdict .tag{display:flex;margin-bottom:2px}
+
+.steps{list-style:none;margin:14px 0 12px;padding:0;display:grid;grid-template-columns:repeat(2,1fr);counter-reset:s;border:1px solid var(--rule);background:var(--sheet)}
+@media (min-width:860px){.steps{grid-template-columns:repeat(6,1fr)}}
+.steps li{counter-increment:s;padding:10px 12px 12px;border-right:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2);font-size:.9rem;color:var(--ink-2);line-height:1.35}
+.steps li::before{content:counter(s);display:block;font-weight:800;font-stretch:72%;font-size:1.3rem;color:var(--accent);line-height:1.1}
+.steps b{display:block;color:var(--ink);font-size:1rem;font-stretch:88%}
+
+.tbl{overflow-x:auto;margin:12px 0;border:1px solid var(--rule);background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule-2);vertical-align:top}
+th{font-weight:700;font-stretch:88%;color:var(--ink-2);font-size:.85rem;border-bottom:1px solid var(--rule);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.nw{white-space:nowrap}
+.wide{min-width:540px}
+pre.json{background:var(--sheet);border:1px solid var(--rule);padding:12px 14px;font-size:.82rem;overflow-x:auto;margin:12px 0 6px;line-height:1.5}
+
+.shot{margin:18px 0 0;max-width:860px}
+.shot > a{display:block;border-radius:8px;overflow:hidden;border:1px solid var(--rule)}
+.thumbs + details{margin-top:18px}
+.thumbs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0 0;padding:0;list-style:none}
+@media (min-width:760px){.thumbs{grid-template-columns:repeat(4,1fr)}}
+.thumbs a{display:block;text-decoration:none;font-size:.82rem;color:var(--ink-2);line-height:1.3}
+.thumbs img{aspect-ratio:16/11;object-fit:cover;object-position:left top;width:100%;border-radius:6px;border:1px solid var(--rule);margin-bottom:5px}
+
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--accent);font-size:.95rem}
+details > *:not(summary){margin-top:10px}
+.f{margin:0;border-top:1px solid var(--rule)}
+.f:last-of-type{border-bottom:1px solid var(--rule)}
+.f summary{color:var(--ink);font-size:1rem;padding:11px 0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:baseline;list-style-position:outside}
+.f summary::marker{color:var(--ink-3)}
+.f .id{font-weight:800;font-stretch:72%;font-size:1.15rem}
+.f .t{font-weight:600}
+.f .t .tag{font-weight:600;font-size:.86rem;color:var(--ink-2);margin-right:10px}
+.f dl{margin:0 0 14px;display:grid;grid-template-columns:52px 1fr;gap:5px 12px;max-width:68ch;font-size:.95rem}
+.f dt{color:var(--ink-3);font-weight:700;font-stretch:88%;font-size:.86rem;padding-top:2px}
+.f dd{margin:0}
+.lows td:first-child{font-weight:800;font-stretch:76%;white-space:nowrap}
+
+.bars{margin:10px 0 4px;max-width:640px}
+.bar-row{display:grid;grid-template-columns:minmax(112px,180px) 1fr 2.2em;gap:10px;align-items:center;font-size:.9rem}
+.bar-row .bl{color:var(--ink-2)}
+.bar-row.hit .bl{color:var(--ink);font-weight:700}
+.bar-row .bt{height:20px;padding:4px 0;border-left:1px solid var(--rule)}
+.bar-row .bf{display:block;height:100%;min-width:3px;background:var(--mark-mute);border-radius:0 4px 4px 0}
+.bar-row.hit .bf{background:var(--accent)}
+.bar-row .bv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+
+footer{border-top:1.5px solid var(--ink);padding:18px 0 48px;font-size:.9rem;color:var(--ink-2)}
+footer b{color:var(--ink)}
+#tip{position:fixed;z-index:10;pointer-events:none;background:var(--ink);color:var(--paper);font-size:.82rem;line-height:1.3;padding:6px 9px;border-radius:5px;max-width:240px}
+#tip[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p style="margin:18px 0 -10px;font-size:.95rem"><a href="./">Back to the overview</a></p>
+  <dl class="fields">
+    <div><dt>Document</dt><dd>Code audit of Insider Tracker</dd></div>
+    <div><dt>Repository</dt><dd><a href="https://github.com/pingywon/trader">pingywon/trader</a></dd></div>
+    <div><dt>Commit audited</dt><dd><a href="https://github.com/pingywon/trader/tree/{{SHA}}"><span class="mono">{{COMMIT}}</span></a>, 21 April 2026</dd></div>
+    <div><dt>Evidence captured</dt><dd>8 October 2026</dd></div>
+  </dl>
+</header>
+
+<main>
+  <h1>The tracker asks the SEC for 100 insider filings. On audit day it got two.</h1>
+  <p class="lede">A Python tool that copies executives' own-stock purchases (SEC Form 4) into an Alpaca brokerage account. Audited by running it.</p>
+
+  <figure class="feed" id="feed">
+    <div class="panel">
+      <h3>As written</h3>
+      <p class="query mono">getcurrent?type=4&amp;<mark>owner=include</mark>&amp;count=100</p>
+      <div class="waffle" role="img" aria-label="100 feed entries: 2 are Form 4, 98 are other forms">{{WAFFLE_ASIS}}</div>
+      <p class="big"><b>2 of 100</b> are insider filings. Covers <b>{{SPAN_ASIS}}</b>.</p>
+      <ul class="keys">{{KEYS_ASIS}}</ul>
+    </div>
+    <div class="panel">
+      <h3>One word changed</h3>
+      <p class="query mono">getcurrent?type=4&amp;<mark>owner=only</mark>&amp;count=100</p>
+      <div class="waffle" role="img" aria-label="100 feed entries: all 100 are Form 4 or Form 4/A">{{WAFFLE_FIXED}}</div>
+      <p class="big"><b>100 of 100</b>. Covers <b>{{SPAN_FIXED}}</b>.</p>
+      <ul class="keys">{{KEYS_FIXED}}</ul>
+    </div>
+  </figure>
+  <p class="cap">SEC feed, 8 October 2026, 2:15 PM Eastern (18:15 UTC). One square is one entry. <a href="evidence/01-live-dry-run.txt">Raw output</a></p>
+  <details><summary>Table view</summary><div class="tbl">{{FEED_TABLE}}</div></details>
+
+  <ul class="verdict">
+    <li><span class="tag">{{ICON_GOOD}}Holds up</span>No leaked keys. No duplicate orders. The 5% cap works.</li>
+    <li><span class="tag">{{ICON_HIGH}}Nearly blind</span>Its SEC request pulls in the wrong forms.</li>
+    <li><span class="tag">{{ICON_HIGH}}Paper only for now</span>No total spending limit. Not ready for real money.</li>
+  </ul>
+
+<section id="what">
+  <h2>The tool</h2>
+  <p>It reads insider reports from the SEC and places a small matching buy through Alpaca. It only buys. <a href="./">Overview</a></p>
+  <details><summary>Order sizes</summary>
+    <div class="tbl" style="max-width:420px"><table>
+      <thead><tr><th>Insider spent</th><th class="num">Tool orders</th></tr></thead>
+      <tbody>
+        <tr><td>Under $50,000</td><td class="num">$100</td></tr>
+        <tr><td>$50,000 to $250,000</td><td class="num">$300</td></tr>
+        <tr><td>$250,000 to $1 million</td><td class="num">$800</td></tr>
+        <tr><td>$1 million to $5 million</td><td class="num">$1,500</td></tr>
+        <tr><td>$5 million and up</td><td class="num">$3,000</td></tr>
+      </tbody></table></div>
+  </details>
+</section>
+
+<section id="alpaca">
+  <h2>How it uses Alpaca</h2>
+  <p>Three calls through Alpaca's Python SDK.</p>
+  <div class="tbl"><table class="wide">
+    <thead><tr><th>Call</th><th>Request</th><th>Uses</th></tr></thead>
+    <tbody>
+      <tr><td class="nw"><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L37-L39"><code>get_account()</code></a></td><td class="nw"><code>GET /v2/account</code></td><td><code>equity</code>, for the 5% cap</td></tr>
+      <tr><td class="nw"><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L41-L46"><code>get_asset()</code></a></td><td class="nw"><code>GET /v2/assets/{symbol}</code></td><td><code>tradable</code></td></tr>
+      <tr><td class="nw"><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L48-L64"><code>submit_order()</code></a></td><td class="nw"><code>POST /v2/orders</code></td><td>saves <code>id</code> and <code>status</code></td></tr>
+    </tbody></table></div>
+  <pre class="json">{"symbol": "FUL", "notional": 800.0, "side": "buy", "type": "market", "time_in_force": "day"}</pre>
+  <p class="cap">The order: a dollar amount, at market price, good for the day.</p>
+  <figure class="shot">
+    <a href="img/shot-03-wire-trace.png"><img src="img/shot-03-wire-trace.png" width="2080" height="1391" alt="Terminal output listing 20 HTTP requests: one GET /v2/account, then pairs of GET /v2/assets/SYMBOL and POST /v2/orders for nine orders, and one GET /v2/account for the second run."></a>
+    <figcaption class="cap">Every request from one run. Recorded locally, no real orders. <a href="evidence/03-alpaca-wire-trace.txt">Text</a></figcaption>
+  </figure>
+  <details><summary>Keys, endpoints and what it never calls</summary>
+    <ul class="short">
+      <li>Keys: <code>ALPACA_API_KEY</code> and <code>ALPACA_API_SECRET</code>, from the environment or <code>.env</code>.</li>
+      <li>Endpoint: <code>ALPACA_PAPER</code> picks practice or real money.</li>
+      <li>Never calls: positions, open orders, order status, buying power, clock, quotes, cancel, sell.</li>
+    </ul>
+  </details>
+</section>
+
+<section id="did">
+  <h2>What it did</h2>
+  <ul class="short">
+    <li><b>On audit day, as written:</b> read 30 filings, 1 was an insider filing, bought nothing.</li>
+    <li><b>Practice run on 193 real filings:</b> 9 paper orders. 7 accepted, 2 rejected. 6 of the 9 hit a bug below.</li>
+  </ul>
+  <figure class="shot">
+    <a href="img/shot-02-replay-run.png"><img src="img/shot-02-replay-run.png" width="2080" height="1351" alt="Terminal output of two replay runs. First run: two GOAI orders rejected as not fractionable, seven orders submitted, ending traded 7, skipped 184, errored 2. Second run: traded 0."></a>
+    <figcaption class="cap">The replay. Real code and filings, stand-in Alpaca, a pretend $25,000 balance. <a href="evidence/02-replay-run.txt">Text</a></figcaption>
+  </figure>
+  <ul class="thumbs">
+    <li><a href="img/shot-01-live-dry-run.png"><img src="img/shot-01-live-dry-run.png" width="2080" height="1190" loading="lazy" alt="Terminal output of the unmodified tool's dry run and a comparison of SEC queries.">As written, live SEC feed</a></li>
+    <li><a href="img/shot-04-status.png"><img src="img/shot-04-status.png" width="2080" height="1593" loading="lazy" alt="Terminal output of insider-tracker status after the replay.">The tool's own log</a></li>
+    <li><a href="img/shot-06a-tests.png"><img src="img/shot-06a-tests.png" width="2080" height="1593" loading="lazy" alt="Terminal output of bug tests 1 to 5.">Bug tests 1 to 5</a></li>
+    <li><a href="img/shot-06b-tests.png"><img src="img/shot-06b-tests.png" width="2080" height="1351" loading="lazy" alt="Terminal output of bug tests 6 to 10.">Bug tests 6 to 10</a></li>
+  </ul>
+  <details><summary>Why it skipped 184 of the 193</summary>
+    <div class="bars" role="img" aria-label="Outcome of 193 filings: 9 would be bought, 184 skipped for the reasons listed">{{BARS}}</div>
+    <div class="tbl" style="max-width:420px">{{BARS_TABLE}}</div>
+  </details>
+  <details><summary>History</summary>
+    <ul class="short">
+      <li>17 April 2026: first commit.</li>
+      <li>20 April: scheduled hourly on weekdays.</li>
+      <li>21 April: schedule committed, disabled. No code changes since.</li>
+      <li>The repo holds no trade history.</li>
+    </ul>
+  </details>
+</section>
+
+<section id="findings">
+  <h2>Findings</h2>
+  <p><span class="tag">{{ICON_HIGH}}3 high</span>&emsp;<span class="tag">{{ICON_MED}}5 medium</span>&emsp;<span class="tag">{{ICON_LOW}}10 low</span>&emsp;<span class="tag">{{ICON_GOOD}}1 fixed</span>&emsp;Each one reproduced. Open a row for proof.</p>
+
+  <details class="f" id="f-01"><summary><span class="id">F-01</span><span class="t"><span class="tag">{{ICON_HIGH}}High</span>SEC request pulls the wrong forms</span></summary>
+    <dl><dt>What</dt><dd><code>type=4</code> matches every form starting with 4. The tool reads only the newest 100.</dd>
+    <dt>Proof</dt><dd>100 entries held 1 Form 4 filing. The next 200 held 17 more.</dd>
+    <dt>Fix</dt><dd>Use <code>owner=only</code>, then page back with <code>start=</code>.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/edgar.py#L20-L24">edgar.py:20</a></dd></dl></details>
+
+  <details class="f" id="f-02"><summary><span class="id">F-02</span><span class="t"><span class="tag">{{ICON_GOOD}}Fixed</span>Paper/live switch failed toward real money</span></summary>
+    <dl><dt>What</dt><dd>Only <code>1</code>, <code>true</code>, <code>yes</code> meant paper. A typo or a blank meant live. Rated high.</dd>
+    <dt>Proof</dt><dd><code>on</code>, <code>y</code>, <code>ture</code> and blank all picked the live endpoint.</dd>
+    <dt>Fixed</dt><dd>Now paper unless <code>ALPACA_PAPER=false</code> and <code>--live</code> are both given. <a href="{{FIX_URL}}"><span class="mono">{{FIX}}</span></a>, <a href="evidence/10-paper-switch-test.txt">test</a></dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L33">alpaca_client.py:33</a></dd></dl></details>
+
+  <details class="f" id="f-03"><summary><span class="id">F-03</span><span class="t"><span class="tag">{{ICON_HIGH}}High</span>No limit on total buying</span></summary>
+    <dl><dt>What</dt><dd>One limit: 5% per order. It never checks holdings, pending orders or cash.</dd>
+    <dt>Proof</dt><dd>The replay bought TSM twice in one run.</dd>
+    <dt>Fix</dt><dd>Cap each symbol and the whole account. Size on cash.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/cli.py#L173-L199">cli.py:173</a></dd></dl></details>
+
+  <details class="f" id="f-04"><summary><span class="id">F-04</span><span class="t"><span class="tag">{{ICON_MED}}Medium</span>Pre-scheduled trade filter reads a missing field</span></summary>
+    <dl><dt>What</dt><dd>The code reads <code>rule10b5_1Flag</code>. Real filings use <code>aff10b5One</code>.</dd>
+    <dt>Proof</dt><dd>193 of 193 filings had <code>aff10b5One</code>. It bought a UXIN purchase marked as pre-scheduled.</dd>
+    <dt>Fix</dt><dd>Read <code>aff10b5One</code>.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/edgar.py#L221-L226">edgar.py:221</a></dd></dl></details>
+
+  <details class="f" id="f-05"><summary><span class="id">F-05</span><span class="t"><span class="tag">{{ICON_MED}}Medium</span>Amended filings count as new buys</span></summary>
+    <dl><dt>What</dt><dd>Form 4/A is treated like Form 4. The purchase date is never checked.</dd>
+    <dt>Proof</dt><dd>Two GOAI amendments for September purchases were accepted on 8 October.</dd>
+    <dt>Fix</dt><dd>Skip 4/A. Ignore purchases older than a few days.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/edgar.py#L177-L183">edgar.py:177</a></dd></dl></details>
+
+  <details class="f" id="f-06"><summary><span class="id">F-06</span><span class="t"><span class="tag">{{ICON_MED}}Medium</span>Sends dollar orders for stocks that can't take them</span></summary>
+    <dl><dt>What</dt><dd>Alpaca takes dollar orders only for <code>fractionable</code> stocks. The tool never checks.</dd>
+    <dt>Proof</dt><dd>Alpaca lists GOAI as not fractionable. <a href="https://docs.alpaca.markets/docs/fractional-trading">Its docs</a> say the order is rejected.</dd>
+    <dt>Fix</dt><dd>Check <code>fractionable</code>. Otherwise buy whole shares or skip.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L41-L46">alpaca_client.py:41</a></dd></dl></details>
+
+  <details class="f" id="f-07"><summary><span class="id">F-07</span><span class="t"><span class="tag">{{ICON_MED}}Medium</span>Sizes on one line of the filing</span></summary>
+    <dl><dt>What</dt><dd>Big purchases span several rows. Only the first is counted.</dd>
+    <dt>Proof</dt><dd>COE: six buys, $32.3 million. Sized as $3.5 million, so $1,500 instead of $3,000.</dd>
+    <dt>Fix</dt><dd>Add up the rows.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/cli.py#L153-L173">cli.py:153</a></dd></dl></details>
+
+  <details class="f" id="f-08"><summary><span class="id">F-08</span><span class="t"><span class="tag">{{ICON_MED}}Medium</span>Temporary failures become permanent</span></summary>
+    <dl><dt>What</dt><dd>Download errors, network errors and rejected orders are all logged as final. Exit code is always 0.</dd>
+    <dt>Proof</dt><dd>A simulated outage was logged as "not tradable".</dd>
+    <dt>Fix</dt><dd>Retry temporary failures. Exit non-zero on errors.</dd>
+    <dt>Code</dt><dd><a href="{{BLOB}}/insider_tracker/cli.py#L138-L143">cli.py:138</a>, <a href="{{BLOB}}/insider_tracker/alpaca_client.py#L44-L45">alpaca_client.py:44</a></dd></dl></details>
+
+  <details><summary>10 low findings</summary>
+    <div class="tbl"><table class="lows wide">
+      <thead><tr><th>Ref</th><th>Finding</th><th>Fix</th><th>Code</th></tr></thead>
+      <tbody>
+        <tr id="f-09"><td>F-09</td><td>Any "Vice President" passes the role filter.</td><td>Match whole titles.</td><td class="nw"><a href="{{BLOB}}/insider_tracker/filters.py#L65">filters.py:65</a></td></tr>
+        <tr id="f-10"><td>F-10</td><td>Order status is saved once and never updated.</td><td>Re-check the order later.</td><td class="nw"><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L60">alpaca_client.py:60</a></td></tr>
+        <tr id="f-11"><td>F-11</td><td>No <code>client_order_id</code>, so a crash can buy twice.</td><td>Send the filing number.</td><td class="nw"><a href="{{BLOB}}/insider_tracker/alpaca_client.py#L49-L54">alpaca_client.py:49</a></td></tr>
+        <tr id="f-12"><td>F-12</td><td>The config's <code>execution</code> block is never read.</td><td>Read it or delete it.</td><td class="nw"><a href="{{BLOB}}/config.yaml#L31-L36">config.yaml:31</a></td></tr>
+        <tr id="f-13"><td>F-13</td><td>Dry run still creates the database file.</td><td>Open it only when writing.</td><td class="nw"><a href="{{BLOB}}/insider_tracker/cli.py#L49">cli.py:49</a></td></tr>
+        <tr id="f-14"><td>F-14</td><td>An $80 insider buy triggers a $100 order.</td><td>Set a minimum insider spend.</td><td class="nw"><a href="{{BLOB}}/insider_tracker/sizer.py#L26-L33">sizer.py:26</a></td></tr>
+        <tr id="f-15"><td>F-15</td><td>Schedule is hourly. The README says 15 minutes.</td><td>Use one setting.</td><td class="nw"><a href="{{BLOB}}/import_script">import_script/</a></td></tr>
+        <tr id="f-16"><td>F-16</td><td>The log keeps the last row's reason, not the best one.</td><td>Keep the most relevant.</td><td class="nw"><a href="{{BLOB}}/insider_tracker/cli.py#L157-L162">cli.py:157</a></td></tr>
+        <tr id="f-17"><td>F-17</td><td>Four pinned packages have nine known advisories. None is on a path the tool uses.</td><td><code>uv lock --upgrade</code></td><td class="nw"><a href="evidence/08-dependency-audit.txt">uv.lock</a></td></tr>
+        <tr id="f-18"><td>F-18</td><td>No tests, CI or licence. No price guard on orders.</td><td>Test the parser and filter first.</td><td class="nw">Repo</td></tr>
+      </tbody></table></div>
+  </details>
+  <details><summary>What held up</summary>
+    <ul class="short">
+      <li>No keys in the repo or its 10 commits.</li>
+      <li>Paper is the default when the switch is unset.</li>
+      <li>A second run over the same filings sent no orders.</li>
+      <li>The 5% cap cut a $3,000 order to $1,250.</li>
+      <li>Safe SQL and YAML. Nothing shells out.</li>
+      <li>About 4 requests a second to the SEC. The limit is 10.</li>
+      <li>815 lines, six small modules, a reason logged for every decision.</li>
+    </ul>
+  </details>
+</section>
+
+<section id="fixes">
+  <h2>Fix first</h2>
+  <ol class="short">
+    <li>Change the SEC request to <code>owner=only</code>.</li>
+    <li>Done: live trading now has to be asked for twice.</li>
+    <li>Check positions and cash before every order.</li>
+  </ol>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p>Read all 815 lines, then ran it: the SEC's current feed, 193 real filings, a local stand-in for Alpaca.</p>
+  <details><summary>Limits and evidence files</summary>
+    <ul class="short">
+      <li>One afternoon of data.</li>
+      <li>The GOAI rejection follows Alpaca's docs. It was not observed live.</li>
+      <li>The practice account's history was not available.</li>
+      <li>One repository-hygiene item went to the owner directly.</li>
+      <li>Not investment advice.</li>
+    </ul>
+    <ul class="short">
+      <li><a href="evidence/01-live-dry-run.txt">Live dry run and feed comparison</a></li>
+      <li><a href="evidence/02-replay-run.txt">Replay run</a></li>
+      <li><a href="evidence/03-alpaca-wire-trace.txt">Alpaca requests</a></li>
+      <li><a href="evidence/04-status.txt">Status output</a></li>
+      <li><a href="evidence/06-direct-tests.txt">Ten bug tests</a></li>
+      <li><a href="evidence/07-form4-sample.txt">193-filing sample</a></li>
+      <li><a href="evidence/08-dependency-audit.txt">Dependency check</a></li>
+      <li><a href="evidence/10-paper-switch-test.txt">Paper switch test, after the fix</a></li>
+      <li><a href="https://github.com/pingywon/trader/tree/gh-pages/evidence/scripts">Scripts</a></li>
+    </ul>
+  </details>
+</section>
+</main>
+
+<footer>
+  <b>Insider Tracker, site version {{VERSION}}.</b> Audit of commit <span class="mono">{{COMMIT}}</span> of <a href="https://github.com/pingywon/trader">pingywon/trader</a>.
+</footer>
+</div>
+
+<div id="tip" role="tooltip" hidden></div>
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  function show(e){
+    var t=e.target.closest('[data-tip]');
+    if(!t){tip.hidden=true;return}
+    tip.textContent=t.getAttribute('data-tip');tip.hidden=false;
+    var x=(e.touches?e.touches[0].clientX:e.clientX)+14,y=(e.touches?e.touches[0].clientY:e.clientY)+16;
+    var w=tip.offsetWidth,h=tip.offsetHeight;
+    if(x+w>innerWidth-8)x=innerWidth-w-8;
+    if(y+h>innerHeight-8)y=y-h-30;
+    tip.style.left=x+'px';tip.style.top=y+'px';
+  }
+  document.addEventListener('mousemove',show);
+  document.addEventListener('touchstart',show,{passive:true});
+  document.addEventListener('scroll',function(){tip.hidden=true},{passive:true});
+  if(location.hash){var el=document.querySelector(location.hash);var d=el&&el.closest('details');if(d)d.open=true;}
+})();
+</script>
+</body>
+</html>

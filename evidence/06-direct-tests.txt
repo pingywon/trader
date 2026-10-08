@@ -1,0 +1,65 @@
+$ python prove_findings.py
+
+[1] ALPACA_PAPER: which values send orders to the LIVE endpoint?
+    ALPACA_PAPER='true'    -> paper=True   BaseURL.TRADING_PAPER
+    ALPACA_PAPER='TRUE'    -> paper=True   BaseURL.TRADING_PAPER
+    ALPACA_PAPER='1'       -> paper=True   BaseURL.TRADING_PAPER
+    ALPACA_PAPER='yes'     -> paper=True   BaseURL.TRADING_PAPER
+    ALPACA_PAPER='on'      -> paper=False  BaseURL.TRADING_LIVE
+    ALPACA_PAPER='y'       -> paper=False  BaseURL.TRADING_LIVE
+    ALPACA_PAPER='paper'   -> paper=False  BaseURL.TRADING_LIVE
+    ALPACA_PAPER='ture'    -> paper=False  BaseURL.TRADING_LIVE
+    ALPACA_PAPER=''        -> paper=False  BaseURL.TRADING_LIVE
+    ALPACA_PAPER='false'   -> paper=False  BaseURL.TRADING_LIVE
+    ALPACA_PAPER='0'       -> paper=False  BaseURL.TRADING_LIVE
+
+[2] Role filter: do titles the README calls 'lower-level' get through?
+    Vice President, Sales        -> ACCEPT
+    Senior Vice President        -> ACCEPT
+    Assistant Vice President     -> ACCEPT
+    Chief Executive Officer      -> ACCEPT
+    Treasurer                    -> reject
+    General Counsel              -> reject
+
+[3] Sizing uses the first accepted row, not the whole purchase (real filing: COE, 2026-10-08)
+    purchase rows: 6   first row $3,490,150   whole filing $32,333,530
+    tool sizes on first row -> $1,500    sized on the total -> $3,000
+
+[4] Amended filings (4/A) are treated as new signals (real filings: GOAI)
+    0001493152-26-046284  form 4/A, purchase dated 2026-09-22  -> ACCEPT  (GOAI $37,510)
+    0001493152-26-046286  form 4/A, purchase dated 2026-09-25  -> ACCEPT  (GOAI $39,798)
+    'documentType' referenced in edgar.py: False   | tx_date compared to today anywhere: False
+
+[5] 10b5-1 checkbox is ignored (real filing: UXIN, 2026-10-08)
+    <aff10b5One> in the XML: True   element the code reads ('rule10b5_1Flag') present: False
+    parser says is_10b5_1=False   filter -> ACCEPT
+    'aff10b5One' referenced in edgar.py: False
+
+[6] config.yaml 'execution' block is never read
+    execution              code references: 0  
+    order_type             code references: 0  
+    time_in_force          code references: 1  ['time_in_force=TimeInForce.DAY,']
+    skip_non_fractionable  code references: 0  
+    fractionable           code references: 0  
+
+[7] A network error during the symbol lookup is recorded as 'not tradable'
+    asset_tradable('AAPL') during an outage -> False   (cli.py then marks the filing skipped for good)
+
+[8] Order status is stored as the enum's name, not its value
+    str(OrderStatus.ACCEPTED) -> 'OrderStatus.ACCEPTED'   .value -> 'accepted'
+
+[9] Sizing edge cases
+    equity $15      -> order $0.75   (Alpaca's minimum is $1)
+    insider $80     -> order $100.00   (larger than the insider's own purchase)
+    insider $1.2bn  -> order $0.00   (falls off the top tier)
+
+[10] What the code never asks Alpaca
+    get_all_positions    used: False
+    get_open_position    used: False
+    get_orders           used: False
+    get_order_by_id      used: False
+    cancel_order         used: False
+    close_position       used: False
+    buying_power         used: False
+    client_order_id      used: False
+    get_clock            used: False

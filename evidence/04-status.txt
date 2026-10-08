@@ -1,0 +1,36 @@
+$ insider-tracker status
+== Recent filings processed ==
+2026-10-08T18:15:22+00:00     UMH  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00     UMH  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00     UMH  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00          skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00          skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    CCBG  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00     UMH  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    EGBN  skipped  tx_code='J' (not open-market purchase)
+2026-10-08T18:15:22+00:00     DRI  skipped  tx_code='S' (not open-market purchase)
+2026-10-08T18:15:22+00:00     MOD  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00    GOAI    error  {"code": 40310000, "message": "requested asset is not fractionable"}
+2026-10-08T18:15:22+00:00    GOAI    error  {"code": 40310000, "message": "requested asset is not fractionable"}
+2026-10-08T18:15:22+00:00          skipped  no parseable nonDerivative transactions
+2026-10-08T18:15:22+00:00    GOAI  skipped  tx_code='A' (not open-market purchase)
+2026-10-08T18:15:22+00:00     CET   traded  CET: insider $28,185 by Hill John C (CEO & President) -> notional $100.00
+2026-10-08T18:15:22+00:00     HMN  skipped  tx_code='S' (not open-market purchase)
+2026-10-08T18:15:22+00:00     FUL   traded  FUL: insider $500,000 by BAILLY R JEFFREY (Director) -> notional $800.00
+2026-10-08T18:15:22+00:00    BORR   traded  BORR: insider $5,390,250 by Troim Tor Olav (Director) -> notional $1250.00
+
+== Recent trades ==
+2026-10-08T18:15:22+00:00     TSM  $  100.00  OrderStatus.PENDING_NEW  Huang Jen-Chau
+2026-10-08T18:15:22+00:00     COE  $ 1250.00  OrderStatus.PENDING_NEW  Huang Jack Jiajia
+2026-10-08T18:15:22+00:00     TSM  $  100.00  OrderStatus.PENDING_NEW  Wei Che-Chia
+2026-10-08T18:15:22+00:00    UXIN  $  100.00  OrderStatus.PENDING_NEW  Dai Kun
+2026-10-08T18:15:22+00:00    BORR  $ 1250.00  OrderStatus.PENDING_NEW  Troim Tor Olav
+2026-10-08T18:15:22+00:00     FUL  $  800.00  OrderStatus.PENDING_NEW  BAILLY R JEFFREY
+2026-10-08T18:15:22+00:00     CET  $  100.00  OrderStatus.PENDING_NEW  Hill John C

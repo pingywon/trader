@@ -1,0 +1,38 @@
+{
+  "captured": "8 October 2026, 2:15 PM Eastern",
+  "commit": "1d09547",
+  "feed_asis": {
+    "span": "24 minutes",
+    "filings": 30,
+    "form4_filings": 1,
+    "groups": [
+      {"form": "Form 4", "n": 2, "what": "insider report", "hit": true},
+      {"form": "424B2", "n": 34, "what": "bank prospectuses", "hit": false},
+      {"form": "40-17G", "n": 34, "what": "one fund filing", "hit": false},
+      {"form": "40-APP/A", "n": 23, "what": "one fund filing", "hit": false},
+      {"form": "485BXT", "n": 7, "what": "fund notices", "hit": false}
+    ]
+  },
+  "feed_fixed": {
+    "span": "7 hours 44 minutes",
+    "filings": 50,
+    "form4_filings": 50,
+    "groups": [
+      {"form": "Form 4", "n": 94, "what": "insider report", "hit": true},
+      {"form": "Form 4/A", "n": 6, "what": "amended insider report", "hit": true}
+    ]
+  },
+  "outcomes_total": 193,
+  "outcomes": [
+    {"label": "Sale", "code": "S", "n": 60, "hit": false},
+    {"label": "Grant or award", "code": "A", "n": 48, "hit": false},
+    {"label": "Role not on the list", "code": "", "n": 34, "hit": false},
+    {"label": "Shares withheld for tax", "code": "F", "n": 26, "hit": false},
+    {"label": "Would buy", "code": "P", "n": 9, "hit": true},
+    {"label": "Option exercise", "code": "M", "n": 6, "hit": false},
+    {"label": "No common-stock rows", "code": "", "n": 5, "hit": false},
+    {"label": "Other transfer", "code": "J", "n": 3, "hit": false},
+    {"label": "Zero price", "code": "", "n": 1, "hit": false},
+    {"label": "Flagged as pre-scheduled", "code": "", "n": 1, "hit": false}
+  ]
+}

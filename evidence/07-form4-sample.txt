@@ -1,0 +1,34 @@
+$ python sample_form4.py                    # 193 real Form 4 filings through the tool's parser and filter
+filings sampled             : 193   feed form types: {'4': 189, '4/A': 4}
+window (UTC)                : 2026-10-07 21:03 -> 2026-10-08 17:47
+documentType in the XML     : {'4': 189, '4/A': 4}
+joint filings (>1 owner)    : 6
+<aff10b5One> element present: 193   box checked: 42
+'rule10b5_1Flag' present    : 0   (the element the code looks for)
+flagged 10b5-1 by the code  : 39   (footnote text match only)
+box checked but code missed : 4  [('PB', ['S']), ('UXIN', ['P']), ('VST', ['S']), ('BNTX', ['S'])]
+transaction codes (rows)    : {'S': 185, 'P': 55, 'M': 54, 'A': 52, 'F': 34, 'J': 7, 'C': 7}
+outcome per filing:
+     60  code S
+     48  code A
+     34  role not allowed
+     26  code F
+      9  ACCEPTED -> would buy
+      6  code M
+      5  no non-derivative transactions
+      3  code J
+      1  zero shares or price
+      1  10b5-1 pre-scheduled plan trade
+accepted:
+    {'acc': '0001493152-26-046286', 'form': '4/A', 'sym': 'GOAI', 'who': 'Boulette David', 'title': 'Chief Executive Officer', 'director': True, 'first_row': 39798, 'total': 39798, 'rows': 1, 'filed': '10-08 15:45'}
+    {'acc': '0001493152-26-046284', 'form': '4/A', 'sym': 'GOAI', 'who': 'Boulette David', 'title': 'Chief Executive Officer', 'director': True, 'first_row': 37510, 'total': 37510, 'rows': 1, 'filed': '10-08 15:43'}
+    {'acc': '0001209992-26-000050', 'form': '4', 'sym': 'CET', 'who': 'Hill John C', 'title': 'CEO & President', 'director': True, 'first_row': 28185, 'total': 28185, 'rows': 1, 'filed': '10-08 15:34'}
+    {'acc': '0001225208-26-008325', 'form': '4', 'sym': 'FUL', 'who': 'BAILLY R JEFFREY', 'title': '', 'director': True, 'first_row': 500000, 'total': 500000, 'rows': 1, 'filed': '10-08 15:26'}
+    {'acc': '0001628280-26-065416', 'form': '4', 'sym': 'BORR', 'who': 'Troim Tor Olav', 'title': '', 'director': True, 'first_row': 5390250, 'total': 5390250, 'rows': 1, 'filed': '10-08 15:11'}
+    {'acc': '0001493152-26-046274', 'form': '4', 'sym': 'UXIN', 'who': 'Dai Kun', 'title': 'Chief Executive Officer', 'director': True, 'first_row': 6676, 'total': 6676, 'rows': 1, 'filed': '10-08 13:15'}
+    {'acc': '0001046179-26-000715', 'form': '4', 'sym': 'TSM', 'who': 'Wei Che-Chia', 'title': 'Chairman and CEO', 'director': True, 'first_row': 11432, 'total': 11432, 'rows': 1, 'filed': '10-08 10:32'}
+    {'acc': '0002029760-26-000010', 'form': '4', 'sym': 'COE', 'who': 'Huang Jack Jiajia', 'title': 'Chief Executive Officer', 'director': True, 'first_row': 3490150, 'total': 32333530, 'rows': 6, 'filed': '10-08 10:32'}
+    {'acc': '0001046179-26-000691', 'form': '4', 'sym': 'TSM', 'who': 'Huang Jen-Chau', 'title': 'SVP and CFO', 'director': False, 'first_row': 2223, 'total': 2223, 'rows': 1, 'filed': '10-08 10:21'}
+multi-row purchases (sym, rows, first-row $, total $): [('COE', 6, 3490150, 32333530)]
+accepted only via 'vice president' title: []
+accepted amendments (4/A): ['GOAI', 'GOAI']

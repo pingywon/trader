@@ -1,0 +1,23 @@
+# Replay, 2026-10-08 14:15 EDT. Real: the tracker code, the alpaca-py SDK, 193 SEC filings.
+# Stand-in: the Alpaca endpoint (local recorder), the keys (dummies), the $25,000 equity.
+
+$ insider-tracker run                      # first run
+14:15:21 INFO Fetching Form 4 feed (count=100, max_age=2 days, 0:00:00)
+14:15:22 INFO Feed returned 193 filings
+14:15:22 INFO Alpaca paper account equity: $25000.00
+14:15:22 ERROR REJECTED GOAI: {"code": 40310000, "message": "requested asset is not fractionable"}
+14:15:22 ERROR REJECTED GOAI: {"code": 40310000, "message": "requested asset is not fractionable"}
+14:15:22 INFO SUBMITTED CET: insider $28,185 by Hill John C (CEO & President) -> notional $100.00  status=OrderStatus.PENDING_NEW  id=d632ec2e-ada5-480a-8e9c-86fed39dc810
+14:15:22 INFO SUBMITTED FUL: insider $500,000 by BAILLY R JEFFREY (Director) -> notional $800.00  status=OrderStatus.PENDING_NEW  id=2e1c6154-d295-4a42-8dad-db28e70300aa
+14:15:22 INFO SUBMITTED BORR: insider $5,390,250 by Troim Tor Olav (Director) -> notional $1250.00  status=OrderStatus.PENDING_NEW  id=e43f2108-706e-47fe-9411-ba35c60190a0
+14:15:22 INFO SUBMITTED UXIN: insider $6,676 by Dai Kun (Chief Executive Officer) -> notional $100.00  status=OrderStatus.PENDING_NEW  id=f1967b93-33a5-4689-9f01-ea30962bd71d
+14:15:22 INFO SUBMITTED TSM: insider $11,432 by Wei Che-Chia (Chairman and CEO) -> notional $100.00  status=OrderStatus.PENDING_NEW  id=83d928f9-2983-42cd-b7c1-624710686f4a
+14:15:22 INFO SUBMITTED COE: insider $3,490,150 by Huang Jack Jiajia (Chief Executive Officer) -> notional $1250.00  status=OrderStatus.PENDING_NEW  id=a724ccb3-f79e-4f92-b0ff-8db75c6e40ed
+14:15:22 INFO SUBMITTED TSM: insider $2,223 by Huang Jen-Chau (SVP and CFO) -> notional $100.00  status=OrderStatus.PENDING_NEW  id=98eb6bb2-c68e-4e4d-b7be-33563d541083
+14:15:22 INFO Done. traded=7 skipped=184 errored=2
+
+$ insider-tracker run                      # second run, same filings
+14:15:22 INFO Fetching Form 4 feed (count=100, max_age=2 days, 0:00:00)
+14:15:22 INFO Feed returned 193 filings
+14:15:22 INFO Alpaca paper account equity: $25000.00
+14:15:22 INFO Done. traded=0 skipped=0 errored=0
