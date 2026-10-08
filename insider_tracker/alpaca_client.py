@@ -22,7 +22,7 @@ class OrderResult:
 
 
 class AlpacaClient:
-    def __init__(self) -> None:
+    def __init__(self, allow_live: bool = False) -> None:
         key = os.environ.get("ALPACA_API_KEY", "").strip()
         secret = os.environ.get("ALPACA_API_SECRET", "").strip()
         if not key or not secret:
@@ -30,7 +30,10 @@ class AlpacaClient:
                 "ALPACA_API_KEY and ALPACA_API_SECRET must be set in the environment "
                 "(or .env file). Get them from your Alpaca dashboard."
             )
-        paper = os.environ.get("ALPACA_PAPER", "true").lower() in ("1", "true", "yes")
+        # Paper unless live is asked for twice: ALPACA_PAPER=false and --live.
+        # A typo or a blank value therefore stays on paper.
+        wants_live = os.environ.get("ALPACA_PAPER", "true").strip().lower() in ("0", "false", "no")
+        paper = not (wants_live and allow_live)
         self.client = TradingClient(key, secret, paper=paper)
         self.paper = paper
 

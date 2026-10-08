@@ -3,7 +3,8 @@
 Subcommands:
   run              — poll EDGAR once, filter, submit orders. Suitable for cron.
   run --dry-run    — log what would be traded without touching Alpaca or state.
-  status           — print recent processed filings and recent trades.
+  run --live       — trade real money. Also needs ALPACA_PAPER=false.
+  status          — print recent processed filings and recent trades.
 """
 from __future__ import annotations
 
@@ -40,6 +41,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="evaluate filings and log decisions but do not submit orders or persist state",
     )
+    run.add_argument(
+        "--live",
+        action="store_true",
+        help="trade real money; also requires ALPACA_PAPER=false. Without both, orders go to paper",
+    )
 
     sub.add_parser("status", help="print recent processed filings and trades")
 
@@ -49,7 +55,7 @@ def main(argv: list[str] | None = None) -> int:
     state = State(Path(args.db))
 
     if args.cmd == "run":
-        return _cmd_run(state, cfg, dry_run=args.dry_run)
+        return _cmd_run(state, cfg, dry_run=args.dry_run, live=args.live)
     if args.cmd == "status":
         return _cmd_status(state)
     return 1
@@ -100,7 +106,7 @@ def _sizing_cfg(cfg: dict) -> SizingConfig:
     return SizingConfig(tiers=tiers, max_pct_of_equity=float(s.get("max_pct_of_equity", 0.05)))
 
 
-def _cmd_run(state: State, cfg: dict, dry_run: bool) -> int:
+def _cmd_run(state: State, cfg: dict, dry_run: bool, live: bool = False) -> int:
     fcfg = _filter_cfg(cfg)
     scfg = _sizing_cfg(cfg)
     poll = cfg.get("polling", {})
@@ -118,7 +124,7 @@ def _cmd_run(state: State, cfg: dict, dry_run: bool) -> int:
         equity = float(os.environ.get("DRY_RUN_EQUITY", "100000"))
         log.info("[DRY RUN] simulated equity: $%.2f", equity)
     else:
-        alpaca = AlpacaClient()
+        alpaca = AlpacaClient(allow_live=live)
         equity = alpaca.account_equity()
         log.info(
             "Alpaca %s account equity: $%.2f",

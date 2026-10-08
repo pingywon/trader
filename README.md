@@ -110,30 +110,22 @@ insider-tracker [--config PATH] [--db PATH] [--verbose] <command>
 | --- | --- |
 | `run` | Poll EDGAR once, filter, submit orders, persist state. Intended for cron / Task Scheduler. |
 | `run --dry-run` | Evaluate filings and log decisions only — no orders, no state writes. |
+| `run --live` | Trade real money. Also needs `ALPACA_PAPER=false`. Without both, orders go to paper. |
 | `status` | Print recent processed filings and recent trades from the state DB. |
 
 ---
 
 ## One-click status check (Windows)
 
-A taskbar-pinnable shortcut is included under `scripts/` so you can see the last 25 filings + trades without touching a terminal.
+A script under `scripts/` creates a taskbar-pinnable shortcut so you can see the last 25 filings + trades without touching a terminal.
 
 ### Files
 
 | Path | What it is |
 | --- | --- |
-| `scripts/Insider Tracker Status.lnk` | Windows shortcut. Target: `cmd.exe /k uv run insider-tracker status`, working dir: the project root. Double-clicking opens a CMD window, prints the last run's audit, and stays open until you close it. |
-| `scripts/create-status-shortcut.ps1` | PowerShell script that regenerates the `.lnk` on your Desktop with paths resolved for the current user and current clone location. Use this if you cloned the repo to a different folder than `C:\Users\username\trading`, or on a new machine. |
+| `scripts/create-status-shortcut.ps1` | PowerShell script that creates an `Insider Tracker Status` shortcut on your Desktop, with paths resolved for the current user and clone location. The shortcut runs `cmd.exe /k uv run insider-tracker status` in the project root: a CMD window opens, prints the last run's audit, and stays open until you close it. |
 
 ### Setup
-
-**If your clone lives at `C:\Users\username\trading`** (the baked-in path), just copy the shortcut to your Desktop:
-
-```powershell
-Copy-Item "scripts\Insider Tracker Status.lnk" "$env:USERPROFILE\Desktop\"
-```
-
-**Otherwise** (different user, different folder, different machine) — regenerate it so the paths match:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\create-status-shortcut.ps1
@@ -268,8 +260,7 @@ trading/
 ├── data/
 │   └── state.db             # SQLite audit + dedupe store (gitignored)
 ├── scripts/
-│   ├── Insider Tracker Status.lnk      # Desktop/taskbar shortcut for `status`
-│   └── create-status-shortcut.ps1      # regenerates the .lnk for any clone path
+│   └── create-status-shortcut.ps1      # creates the Desktop/taskbar shortcut for `status`
 └── insider_tracker/
     ├── cli.py               # argparse entry point: run / status
     ├── edgar.py             # SEC EDGAR Form 4 feed + XML parsing
@@ -289,7 +280,7 @@ trading/
 
 ## Notes & caveats
 
-- **Paper by default.** `ALPACA_PAPER=true` in `.env` keeps this safely on the paper endpoint. Flip to `false` only when you mean it.
+- **Paper unless you ask twice.** Orders go to the paper endpoint unless `ALPACA_PAPER=false` is set *and* you pass `run --live`. A typo or a blank value stays on paper.
 - **Idempotent by accession.** Every Form 4 has a unique `accession` number. The state DB records every one it sees, so re-runs are safe and cheap.
 - **Buys only.** There is no sell-side logic — this mirrors insider **conviction**, not exits. Close positions manually in Alpaca.
 - **Not financial advice.** You are running an automated strategy. Understand it, dry-run it, watch it for a while on paper before considering anything else.
